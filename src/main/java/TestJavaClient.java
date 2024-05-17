@@ -16,6 +16,7 @@ public class TestJavaClient {
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        props.put("client.id", "b69cc35a-7a54-4790-aa69-cc2bd4ee4538");
         Producer<String, String> producer = new KafkaProducer<>(props);
         produceTo(producer, "test-topic", "s");
         producer.flush();
@@ -28,7 +29,7 @@ public class TestJavaClient {
                     if (ex != null)
                         LOG.error("Exception:", ex);
                     else
-                        LOG.info(String.format("Produced event to topic %s: key = %-10s value = %s", "x", "y", "z"));
+                        LOG.info(String.format("Produced event to topic %s: key = %-10s value = %s", event.topic(), "TODO", "z"));
                 });
     }
 }
