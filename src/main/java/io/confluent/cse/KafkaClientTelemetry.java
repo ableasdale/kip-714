@@ -1,6 +1,7 @@
 package io.confluent.cse;
 
 import io.opentelemetry.proto.metrics.v1.MetricsData;
+import io.opentelemetry.proto.metrics.v1.ResourceMetrics;
 import org.apache.kafka.common.metrics.KafkaMetric;
 import org.apache.kafka.common.metrics.MetricsReporter;
 import org.apache.kafka.server.authorizer.AuthorizableRequestContext;
@@ -56,19 +57,23 @@ public class KafkaClientTelemetry implements ClientTelemetry, MetricsReporter, C
 
     @Override
     public void exportMetrics(AuthorizableRequestContext context, ClientTelemetryPayload payload) {
-        LOG.info("***** exportMetrics *****");
+        LOG.info("***** KafkaClientTelemetry :: exportMetrics *****");
         try {
-            LOG.info("*** Context *** : clientId="+context.clientId()+", requestType=" +context.requestType());
+            LOG.info("*** Context *** : clientId="+context.clientId()+", requestType=" +context.requestType()+", clientAddress=" +context.clientAddress()+", listenerName=" +context.listenerName());
+            LOG.info("*** Payload *** : "+payload.data().toString());
             MetricsData data = MetricsData.parseFrom(payload.data());
-
-            LOG.info("+++ CLIENT TELEMETRY: clientInstanceId=" + payload.clientInstanceId()
+            List<ResourceMetrics> resourceMetricsList = data.getResourceMetricsList();
+            for (ResourceMetrics r : resourceMetricsList){
+                LOG.info(" > "+r.getScopeMetricsList().get(0).getMetrics(0).getName() + " | " + r.getScopeMetricsList().get(0).getMetrics(0).getUnit() + " | "+ r.getScopeMetricsList().get(0).getMetrics(0).toString());  //getGauge().getDataPoints(0).getAsDouble());
+            }
+            /* LOG.info("+++ CLIENT TELEMETRY: clientInstanceId=" + payload.clientInstanceId()
                     + ", isTerminating=" + payload.isTerminating()
                     + ", contentType=" + payload.contentType()
                     + ", metrics="
                     + data.getResourceMetricsList()
                     .stream()
                     .map(rm -> rm.getScopeMetricsList().get(0).getMetrics(0).getName())
-                    .collect(Collectors.joining(",", "[", "]")));
+                    .collect(Collectors.joining(",", "[", "]"))); */
         } catch (Exception e) {
             LOG.info("+++ CLIENT TELEMETRY: clientInstanceId=" + payload.clientInstanceId()
                     + ", isTerminating=" + payload.isTerminating()
