@@ -1,11 +1,39 @@
-# kip-714
-Testing KIP-714 (https://cwiki.apache.org/confluence/display/KAFKA/KIP-714%3A+Client+metrics+and+observability)
+# KIP-714
+
+Testing [KIP-714: Client metrics and observability](https://cwiki.apache.org/confluence/display/KAFKA/KIP-714%3A+Client+metrics+and+observability)
+
+## Prerequisites
+
+This project requires the use of [Apache Kafka 3.7.0](https://kafka.apache.org/downloads) or later.
 
 ## Getting Started
+
+The provided `docker-compose` file will initialise a single [Apache Kafka](https://hub.docker.com/r/apache/kafka) broker (running in KRaft mode).
+
+The `broker` instance has been configured to use a pre-configured broker plugin for the metrics (`io.confluent.cse.KafkaClientTelemetry`).
+
+This plugin needs to be provided to the Docker container before you can start the container up; if you start the container without creating the jar file containing the plugin, the broker will fail to start, logging a `org.apache.kafka.common.KafkaException: Class io.confluent.cse.KafkaClientTelemetry cannot be found` message.
+
+To build the jar, run:
+
+```bash
+gradle shadowJar
+```
+
+To start the instance, run:
 
 ```bash
 docker-compose up -d
 ```
+
+Let's create a couple of test messages to get started:
+
+```bash
+gradle run
+```
+
+
+
 
 ### Initial testing
 
@@ -83,6 +111,8 @@ docker-compose exec broker bash
 ```
 
 /opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server $BROKERS --describe
+
+### Notes
 
 - Use KRaft
 - Write or obtain a metrics reporter that implements `org.apache.kafka.server.telemetry.ClientTelemetry`. Put that class on the class path for the brokers.

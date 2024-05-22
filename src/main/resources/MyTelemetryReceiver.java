@@ -1,10 +1,5 @@
-package io.confluent.cse;
-
 import org.apache.kafka.common.metrics.KafkaMetric;
 import org.apache.kafka.common.metrics.MetricsReporter;
-import org.apache.kafka.server.authorizer.AuthorizableRequestContext;
-import org.apache.kafka.server.telemetry.ClientTelemetryPayload;
-import org.apache.kafka.server.telemetry.ClientTelemetryReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

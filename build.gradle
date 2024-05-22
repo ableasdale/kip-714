@@ -5,7 +5,7 @@ plugins {
 }
 
 application {
-    mainClassName = 'io.confluent.cse.TelemetryReporter'
+    mainClassName = 'io.confluent.cse.test.TestJavaClient'
 }
 
 version = '1.0'
@@ -18,16 +18,11 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    implementation 'ch.qos.logback:logback-classic:1.5.0'
     implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.7.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
-    implementation group: 'io.confluent', name: 'ce-kafka-resources', version: '7.6.1-ce'
-    // https://mvnrepository.com/artifact/org.apache.kafka/kafka
-    //implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.7.0'
 
-
-    // KIP-714
+    // KIP-714?
     implementation("io.opentelemetry.proto:opentelemetry-proto:0.19.0-alpha") //1.3.1-alpha
     implementation("com.google.protobuf:protobuf-java:3.18.0") // 4.26.1
 }
