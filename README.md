@@ -78,5 +78,16 @@ Client metrics configs for basic_producer_metrics are:
 ```
 
 
+```bash
+docker-compose exec broker bash
+```
 
 /opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server $BROKERS --describe
+
+- Use KRaft
+- Write or obtain a metrics reporter that implements `org.apache.kafka.server.telemetry.ClientTelemetry`. Put that class on the class path for the brokers.
+- Change the broker configuration metric.reporters=<your class name>
+- Start the brokers.
+- Ensure that client telemetry APIs are supported using the kafka-broker-api-versions.sh tool
+- Create a client metrics resource to start collecting metrics using the kafka-client-metrics.sh tool
+- And then connect your clients (AK 3.7 or later)

@@ -1,12 +1,20 @@
 plugins {
     id 'java'
+    id 'application'
+    id("com.github.johnrengelman.shadow") version "7.1.2" //"8.1.1"
 }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+application {
+    mainClassName = 'io.confluent.cse.TelemetryReporter'
+}
+
+version = '1.0'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://packages.confluent.io/maven"
+    }
 }
 
 dependencies {
@@ -14,6 +22,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.7.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
+    implementation group: 'io.confluent', name: 'ce-kafka-resources', version: '7.6.1-ce'
+    // https://mvnrepository.com/artifact/org.apache.kafka/kafka
+    //implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.7.0'
+
+
     // KIP-714
     implementation("io.opentelemetry.proto:opentelemetry-proto:0.19.0-alpha") //1.3.1-alpha
     implementation("com.google.protobuf:protobuf-java:3.18.0") // 4.26.1
@@ -22,3 +35,17 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+/*
+jar {
+    //from {
+    //    configurations.runtimeClasspath.filter{ it.exists() }.collect { it.isDirectory() ? it : zipTree(it) }
+    //}
+    manifest {
+        attributes(
+            'Main-Class':  application.mainClassName, 'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' ')
+        )
+    }
+} */
+
+sourceCompatibility = 11
