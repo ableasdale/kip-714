@@ -2,6 +2,7 @@ package io.confluent.cse.test;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +20,18 @@ public class TestJavaClient {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("client.id", "b69cc35a-7a54-4790-aa69-cc2bd4ee4538");
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 500);
+        props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+        props.put(ProducerConfig.ENABLE_METRICS_PUSH_CONFIG, true);
         Producer<String, String> producer = new KafkaProducer<>(props);
-        produceTo(producer, "test-topic", "key1", "value1");
-        produceTo(producer, "test-topic", "key2", "value2");
-        producer.flush();
+
+        for (int j=0; j<50; j++) {
+            for (int i = 0; i < 100000; i++) {
+                produceTo(producer, "test-topic", "key" + i, "value" + i);
+            }
+            producer.flush();
+        }
         producer.close();
     }
 
@@ -32,7 +41,7 @@ public class TestJavaClient {
                     if (ex != null)
                         LOG.error("Exception:", ex);
                     else
-                        LOG.info(String.format("Produced event to topic : %s || key : %s || value : %s", event.topic(), key, value));
+                        LOG.debug(String.format("Produced event to topic : %s || key : %s || value : %s", event.topic(), key, value));
                 });
     }
 }

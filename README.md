@@ -26,12 +26,6 @@ To start the instance, run:
 docker-compose up -d
 ```
 
-Let's create a couple of test messages to get started:
-
-```bash
-gradle run
-```
-
 Let's connect to the `broker` and look around at the new feature in more detail:
 
 ```bash
@@ -50,10 +44,58 @@ You can review the Apache Kafka version running on the host instance by running:
 /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092 --version
 ```
 
+This runs:
+
+```bash
+/opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 \
+   --alter \
+   --name 'basic_producer_metrics'\
+   --metrics org.apache.kafka.producer. \
+   --interval 5000
+```
+Confirm it's configured:
+
+```bash
+/opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --describe --name "basic_producer_metrics"
+```
+You should see:
+
+```terminal
+Client metrics configs for basic_producer_metrics are:
+  interval.ms=5000
+  metrics=org.apache.kafka.producer.
+```
+
+Great - let's create a few batches of test messages to get started - exit from the terminal session to the `broker` docker instance if you're still connected and run:
+
+```bash
+gradle run
+```
+You should see telemetry metrics getting logged by the broker: 
+
+```logfile
+2024-05-22 21:47:17 [2024-05-22 20:47:17,487] [INFO] ***** exportMetrics *****
+2024-05-22 21:47:17 [2024-05-22 20:47:17,487] [INFO] +++ CLIENT TELEMETRY: clientInstanceId=VQQTF4UpT8qqtooenFFlgA,
+```
+
+
+
+
+
+
+### Less relevant stuff below...
+
 TODO - add metrics - this works but it's the longer form version of the command:
 
 ```bash
-/opt/kafka/bin/kafka-configs.sh --bootstrap-server broker:9092    --entity-type client-metrics    --entity-name "basic_producer_metrics"    --alter    --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
+/opt/kafka/bin/kafka-configs.sh --bootstrap-server broker:9092    --entity-type client-metrics  
+  --entity-name "basic_producer_metrics"    --alter   
+   --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],
+   interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
+```
+
+```bash
+/opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --list
 ```
 
 Now let's describe it:
@@ -61,6 +103,18 @@ Now let's describe it:
 ```bash
 /opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --describe --name "basic_producer_metrics"
 ```
+
+
+
+We should see:
+
+```bash
+Client metrics configs for basic_producer_metrics are:
+  interval.ms=15000
+  match=client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538
+  metrics=org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max
+```
+
 
 
 ### Initial testing
@@ -112,6 +166,8 @@ bash: kafka-configs.sh: command not found
 ```bash
 kafka:/$ /opt/kafka/bin/kafka-configs.sh --bootstrap-server kafka:9092    --entity-type client-metrics    --entity-name "basic_producer_metrics"    --alter    --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
 ```
+
+/opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --list
 
 ```bash
 /opt/kafka/bin/kafka-configs.sh --bootstrap-server kafka:9092 --describe --entity-type client-metrics --entity-name "basic_producer_metrics"
