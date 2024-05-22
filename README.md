@@ -32,7 +32,35 @@ Let's create a couple of test messages to get started:
 gradle run
 ```
 
+Let's connect to the `broker` and look around at the new feature in more detail:
 
+```bash
+docker-compose exec broker bash
+```
+
+Let's start by looking at:
+
+```bash
+/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092
+```
+
+You can review the Apache Kafka version running on the host instance by running:
+
+```bash
+/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092 --version
+```
+
+TODO - add metrics - this works but it's the longer form version of the command:
+
+```bash
+/opt/kafka/bin/kafka-configs.sh --bootstrap-server broker:9092    --entity-type client-metrics    --entity-name "basic_producer_metrics"    --alter    --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
+```
+
+Now let's describe it:
+
+```bash
+/opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --describe --name "basic_producer_metrics"
+```
 
 
 ### Initial testing
@@ -51,7 +79,7 @@ docker exec -ti kafka /bin/bash
 docker exec -ti kafka /opt/kafka/bin/kafka-topics.sh
 ```
 
-Workings
+### Workings
 
 ```bash
 docker-compose exec kafka /opt/kafka/bin/kafka-topics.sh --describe
@@ -114,10 +142,10 @@ docker-compose exec broker bash
 
 ### Notes
 
-- Use KRaft
+- Ensure the Kafka Cluster is using KRaft mode
 - Write or obtain a metrics reporter that implements `org.apache.kafka.server.telemetry.ClientTelemetry`. Put that class on the class path for the brokers.
-- Change the broker configuration metric.reporters=<your class name>
+- Change the broker configuration `metric.reporters=<your class name>`
 - Start the brokers.
-- Ensure that client telemetry APIs are supported using the kafka-broker-api-versions.sh tool
-- Create a client metrics resource to start collecting metrics using the kafka-client-metrics.sh tool
+- Ensure that client telemetry APIs are supported using the `kafka-broker-api-versions.sh` tool
+- Create a client metrics resource to start collecting metrics using the `kafka-client-metrics.sh` tool
 - And then connect your clients (AK 3.7 or later)
