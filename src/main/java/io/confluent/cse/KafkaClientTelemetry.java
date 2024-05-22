@@ -58,6 +58,7 @@ public class KafkaClientTelemetry implements ClientTelemetry, MetricsReporter, C
     public void exportMetrics(AuthorizableRequestContext context, ClientTelemetryPayload payload) {
         LOG.info("***** exportMetrics *****");
         try {
+            LOG.info("*** Context *** : clientId="+context.clientId()+", requestType=" +context.requestType());
             MetricsData data = MetricsData.parseFrom(payload.data());
 
             LOG.info("+++ CLIENT TELEMETRY: clientInstanceId=" + payload.clientInstanceId()

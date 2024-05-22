@@ -1,4 +1,4 @@
-# KIP-714
+# KIP-714: Client metrics and observability
 
 Testing [KIP-714: Client metrics and observability](https://cwiki.apache.org/confluence/display/KAFKA/KIP-714%3A+Client+metrics+and+observability)
 
@@ -38,7 +38,7 @@ Let's start by looking at:
 /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092
 ```
 
-You can review the Apache Kafka version running on the host instance by running:
+You can review the Apache Kafka version running on the host instance (`3.7.0`) by running:
 
 ```bash
 /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server broker:9092 --version
@@ -53,6 +53,7 @@ This runs:
    --metrics org.apache.kafka.producer. \
    --interval 5000
 ```
+
 Confirm it's configured:
 
 ```bash
@@ -66,20 +67,35 @@ Client metrics configs for basic_producer_metrics are:
   metrics=org.apache.kafka.producer.
 ```
 
-Great - let's create a few batches of test messages to get started - exit from the terminal session to the `broker` docker instance if you're still connected and run:
+Great - let's create a few batches of test messages to get started - `exit` from the terminal session to the `broker` docker instance if you're still connected and run:
 
 ```bash
 gradle run
 ```
-You should see telemetry metrics getting logged by the broker: 
+You should see telemetry metrics getting logged by the `broker` (every 5 seconds): 
 
 ```logfile
 2024-05-22 21:47:17 [2024-05-22 20:47:17,487] [INFO] ***** exportMetrics *****
 2024-05-22 21:47:17 [2024-05-22 20:47:17,487] [INFO] +++ CLIENT TELEMETRY: clientInstanceId=VQQTF4UpT8qqtooenFFlgA,
 ```
 
+To access the logs:
 
+```bash
+docker logs broker
+```
 
+Accessing `server.properties`:
+
+```bash
+less /etc/kafka/docker/server.properties
+```
+
+Get root access to the container:
+
+```bash
+docker exec -u 0 -it broker bash
+```
 
 
 
@@ -154,21 +170,20 @@ Let's produce:
 docker-compose exec kafka /opt/kafka/bin/kafka-console-producer.sh --bootstrap-server kafka:9092 --topic test-topic
 ```
 
-docker-compose exec kafka bash
-
+```
 kafka-configs.sh --bootstrap-server $BROKERS \
 --entity-type client-metrics \
 --entity-name "basic_producer_metrics" \
 --alter \
 --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
-bash: kafka-configs.sh: command not found
+```
 
 ```bash
 kafka:/$ /opt/kafka/bin/kafka-configs.sh --bootstrap-server kafka:9092    --entity-type client-metrics    --entity-name "basic_producer_metrics"    --alter    --add-config "metrics=[org.apache.kafka.producer., org.apache.kafka.consumer.coordinator.rebalance.latency.max],interval.ms=15000,match=[client_instance_id=b69cc35a-7a54-4790-aa69-cc2bd4ee4538]"
 ```
-
+```bash
 /opt/kafka/bin/kafka-client-metrics.sh --bootstrap-server broker:9092 --list
-
+```
 ```bash
 /opt/kafka/bin/kafka-configs.sh --bootstrap-server kafka:9092 --describe --entity-type client-metrics --entity-name "basic_producer_metrics"
 ```
